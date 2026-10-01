@@ -298,7 +298,7 @@
                         <div style="display:flex; justify-content:space-between;"><b>${team.name} ${currentUserId === team.id ? '🔑':''}</b><span style="color:var(--accent-gold);">${team.points} pt</span></div>
                         <div class="slots-container">${slotsHTML}</div>
                         <div class="bid-input-group">
-                            <input type="number" id="bid-input-${team.id}" class="bid-input" placeholder="${isMyTeam ? (currentUserId === -2 ? '로그인' : '포인트') : '권한없음'}" step="10" ${!canBid ? 'disabled':''}>
+                            <input type="number" id="bid-input-${team.id}" class="bid-input" placeholder="${isMyTeam ? (currentUserId === -2 ? '로그인' : '포인트') : '권한없음'}" ${!canBid ? 'disabled':''}>
                             <button onclick="submitBid(${team.id})" ${!canBid ? 'disabled':''}>입찰</button>
                         </div>
                     </div>`;
@@ -321,10 +321,16 @@
         function submitBid(teamId) {
             const input = document.getElementById(`bid-input-${teamId}`);
             const bidVal = parseInt(input.value);
-            if (!isNaN(bidVal) && bidVal % 10 === 0) {
-                socket.emit('submitBid', { teamId, bidVal });
-                input.value = '';
-            } else { alert('10단위 숫자를 입력하세요.'); }
+            if (isNaN(bidVal) || bidVal < 0) {
+                alert('올바른 포인트 숫자를 입력해 주세요.');
+                return;
+            }
+            if (bidVal % 10 !== 0) {
+                alert('입찰 포인트는 10단위(예: 10, 50, 100, 500, 1300 등)여야 합니다.');
+                return;
+            }
+            socket.emit('submitBid', { teamId, bidVal });
+            input.value = '';
         }
         function startCountdown() { socket.emit('startCountdown'); }
         function forcePass() { socket.emit('forcePass'); }
