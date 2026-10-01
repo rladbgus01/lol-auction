@@ -215,6 +215,8 @@ io.on('connection', (socket) => {
         if (state.highestBidder) {
             const t = state.teams.find(team => team.id === state.highestBidder.id);
             t.points -= state.currentBid;
+            // 낙찰 금액을 선수 데이터에 기록
+            state.currentAuctionPlayer.bidPrice = state.currentBid;
             t.slots.push(state.currentAuctionPlayer);
 
             state.logs.unshift(`<span style="color:#e5b849;"><b>[낙찰]</b> ${state.currentAuctionPlayer.name} (${state.currentAuctionPlayer.line}) -> ${t.name} (${state.currentBid} pt)</span>`);
