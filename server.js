@@ -184,7 +184,7 @@ io.on('connection', (socket) => {
         state.timerRunning = false;
         state.timeLeft = 5.0;
 
-        state.logs.unshift(`팀장 <b>${team.name}</b> 입찰: ${state.currentBid} pt (사회자 5초 시작 대기)`);
+        state.logs.unshift(`팀장 <b>${team.name}</b> 입찰: ${state.currentBid} pt`);
         broadcastState();
     });
 
@@ -215,7 +215,6 @@ io.on('connection', (socket) => {
         if (state.highestBidder) {
             const t = state.teams.find(team => team.id === state.highestBidder.id);
             t.points -= state.currentBid;
-            // 낙찰 금액을 선수 데이터에 기록
             state.currentAuctionPlayer.bidPrice = state.currentBid;
             t.slots.push(state.currentAuctionPlayer);
 
@@ -231,6 +230,14 @@ io.on('connection', (socket) => {
         broadcastState();
     }
 
+    // 사회자: 즉시 낙찰 처리
+    socket.on('forceWin', () => {
+        if (!state.auctionActive || !state.highestBidder) return;
+        clearInterval(timerInterval);
+        finalizeAuction();
+    });
+
+    // 사회자: 강제 유찰
     socket.on('forcePass', () => {
         if (!state.auctionActive) return;
         clearInterval(timerInterval);
