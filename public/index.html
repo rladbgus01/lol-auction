@@ -68,7 +68,7 @@
         .timer-bar-bg { width: 100%; height: 6px; background: #2a3240; border-radius: 3px; overflow: hidden; margin-top: 4px; }
         .timer-bar { height: 100%; width: 100%; background: var(--accent-red); transition: width 0.1s linear; }
 
-        .controls { display: flex; flex-direction: column; gap: 8px; }
+        .controls { display: flex; flex-direction: column; gap: 6px; }
         button { background: var(--accent-gold); color: #000; border: none; padding: 8px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; }
         button:disabled { background: #4a5260 !important; color: #888 !important; cursor: not-allowed !important; }
 
@@ -153,6 +153,7 @@
                 <div class="controls">
                     <button onclick="startNextAuction()" id="btn-next">다음 경매 시작</button>
                     <button onclick="startCountdown()" id="btn-timer" style="background:var(--accent-green);">5초 카운트다운 시작 ⏱</button>
+                    <button onclick="forceWin()" id="btn-win" style="background:#00d2ff; color:#000;">즉시 낙찰 처리 ⚡</button>
                     <button onclick="forcePass()" id="btn-pass" style="background:#4a5260; color:#fff;">강제 유찰 처리</button>
                 </div>
             </div>
@@ -190,7 +191,7 @@
         let pendingUserId = -2;
         let selectedLineFilter = 'ALL';
         let rightLineFilter = 'ALL';
-        let currentHistoryTab = 'WIN'; // 'WIN' 또는 'PASS'
+        let currentHistoryTab = 'WIN';
 
         const leaderNames = ["박상우","박규현","최병주","박찬영","서민우","김대현","한진우","나덕용","서민준","송기연","강민서","김건희"];
 
@@ -279,6 +280,7 @@
             document.getElementById('btn-shuffle').disabled = !isHost || currentState.auctionActive;
             document.getElementById('btn-next').disabled = !isHost || currentState.auctionActive;
             document.getElementById('btn-pass').disabled = !isHost || !currentState.auctionActive;
+            document.getElementById('btn-win').disabled = !isHost || !currentState.auctionActive || !currentState.highestBidder;
             document.getElementById('btn-timer').disabled = !isHost || !(currentState.auctionActive && !currentState.timerRunning);
 
             const allRemaining = [...currentState.publicQueue, ...currentState.hiddenQueue];
@@ -352,7 +354,6 @@
                 }
             });
 
-            // 이력 분리 렌더링
             const wins = currentState.history.filter(h => h.result !== '유찰');
             const passes = currentState.history.filter(h => h.result === '유찰');
 
@@ -411,6 +412,7 @@
         }
 
         function startCountdown() { socket.emit('startCountdown'); }
+        function forceWin() { socket.emit('forceWin'); }
         function forcePass() { socket.emit('forcePass'); }
         function shuffleMembers() { socket.emit('shuffleMembers'); }
         function resetAuction() { socket.emit('resetAuction'); }
