@@ -92,6 +92,7 @@ let state = {
     teams: [],
     publicQueue: [],
     hiddenQueue: [],
+    passedQueue: [], // 따로 보관할 유찰 대기열
     currentAuctionPlayer: null,
     currentBid: 0,
     highestBidder: null,
@@ -117,6 +118,7 @@ function initAuction() {
     const shuffled = shuffle(lineOrderedMembers.map(m => ({ ...m })));
     state.publicQueue = shuffled.slice(0, 24);
     state.hiddenQueue = shuffled.slice(24);
+    state.passedQueue = [];
 
     state.currentAuctionPlayer = null;
     state.currentBid = 0;
@@ -148,12 +150,21 @@ io.on('connection', (socket) => {
     socket.on('startNextAuction', () => {
         if (state.auctionActive) return;
 
+        // 1. 공개 대기열(1~24)에서 진행
         if (state.publicQueue.length > 0) {
             state.currentAuctionPlayer = state.publicQueue.shift();
-        } else if (state.hiddenQueue.length > 0) {
+        } 
+        // 2. 비공개 대기열(25~48)에서 무작위 추출
+        else if (state.hiddenQueue.length > 0) {
             const randIdx = Math.floor(Math.random() * state.hiddenQueue.length);
             state.currentAuctionPlayer = state.hiddenQueue.splice(randIdx, 1)[0];
-        } else {
+        } 
+        // 3. 48명 모두 경매 완료 후 유찰된 인원이 남아있을 때 무작위 추출
+        else if (state.passedQueue.length > 0) {
+            const randIdx = Math.floor(Math.random() * state.passedQueue.length);
+            state.currentAuctionPlayer = state.passedQueue.splice(randIdx, 1)[0];
+        } 
+        else {
             return;
         }
 
@@ -221,23 +232,22 @@ io.on('connection', (socket) => {
             state.logs.unshift(`<span style="color:#e5b849;"><b>[낙찰]</b> ${state.currentAuctionPlayer.name} (${state.currentAuctionPlayer.line}) -> ${t.name} (${state.currentBid} pt)</span>`);
             state.history.unshift({ player: `${state.currentAuctionPlayer.name} (${state.currentAuctionPlayer.line})`, result: t.name, price: `${state.currentBid} pt` });
         } else {
-            state.logs.unshift(`<span style="color:#ff4655;"><b>[유찰]</b> ${state.currentAuctionPlayer.name} (입찰자 없음) -> 비공개 대기열 이동</span>`);
+            state.logs.unshift(`<span style="color:#ff4655;"><b>[유찰]</b> ${state.currentAuctionPlayer.name} (입찰자 없음) -> 유찰 대기열 이동</span>`);
             state.history.unshift({ player: state.currentAuctionPlayer.name, result: '유찰', price: '-' });
-            state.hiddenQueue.push(state.currentAuctionPlayer);
+            // 유찰된 인원은 48명 경매 완료 시까지 별도 대기열에 보관
+            state.passedQueue.push(state.currentAuctionPlayer);
         }
 
         state.currentAuctionPlayer = null;
         broadcastState();
     }
 
-    // 사회자: 즉시 낙찰 처리
     socket.on('forceWin', () => {
         if (!state.auctionActive || !state.highestBidder) return;
         clearInterval(timerInterval);
         finalizeAuction();
     });
 
-    // 사회자: 강제 유찰
     socket.on('forcePass', () => {
         if (!state.auctionActive) return;
         clearInterval(timerInterval);
