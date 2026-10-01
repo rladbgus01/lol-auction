@@ -86,7 +86,6 @@
         .modal-card { background: var(--panel-bg); border: 2px solid var(--accent-gold); padding: 24px; border-radius: 10px; width: 320px; text-align: center; display: flex; flex-direction: column; gap: 12px; }
         .modal-card input { padding: 10px; font-size: 16px; text-align: center; background: #12161f; border: 1px solid var(--border-color); color: #fff; border-radius: 5px; }
 
-        /* 모바일 화면 (너비 1024px 이하) 대응 반응형 디자인 */
         @media (max-width: 1024px) {
             body { overflow-y: auto; height: auto; }
             .main-container { grid-template-columns: 1fr; }
@@ -338,9 +337,16 @@
                 document.getElementById('timer-bar').style.width = '100%';
             }
 
+            // 초기 보유 포인트 오름차순(작은 순서 -> 큰 순서) 정렬
+            const sortedTeams = [...currentState.teams].sort((a, b) => {
+                const totalA = a.points + a.slots.reduce((sum, s) => sum + (s.bidPrice || 0), 0);
+                const totalB = b.points + b.slots.reduce((sum, s) => sum + (s.bidPrice || 0), 0);
+                return totalA - totalB;
+            });
+
             const teamsGrid = document.getElementById('teams-grid');
             teamsGrid.innerHTML = '';
-            currentState.teams.forEach(team => {
+            sortedTeams.forEach(team => {
                 const isMyTeam = (currentUserId === -1) || (currentUserId === team.id);
                 const canBid = currentState.auctionActive && team.slots.length < 4 && isMyTeam && (currentUserId !== -2);
                 let slotsHTML = '';
