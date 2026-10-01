@@ -283,7 +283,8 @@
             document.getElementById('btn-win').disabled = !isHost || !currentState.auctionActive || !currentState.highestBidder;
             document.getElementById('btn-timer').disabled = !isHost || !(currentState.auctionActive && !currentState.timerRunning);
 
-            const allRemaining = [...currentState.publicQueue, ...currentState.hiddenQueue];
+            // 유찰 대기열 인원까지 합산
+            const allRemaining = [...currentState.publicQueue, ...currentState.hiddenQueue, ...(currentState.passedQueue || [])];
             if (currentState.currentAuctionPlayer) allRemaining.push(currentState.currentAuctionPlayer);
             const counts = { ALL: allRemaining.length, TOP: 0, JGL: 0, MID: 0, ADC: 0, SUP: 0 };
             allRemaining.forEach(p => counts[p.line]++);
@@ -395,7 +396,7 @@
                 return;
             }
             if (bidVal % 10 !== 0) {
-                alert('입찰 포인트는 10단위(예: 10, 50, 100, 500, 1300 등)여야 합니다.');
+                alert('입찰 포인트는 10의 배수(예 10, 20, ... 110... 1050..등)여야 합니다.');
                 return;
             }
             if (team && team.points < bidVal) {
