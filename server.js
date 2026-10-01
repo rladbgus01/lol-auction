@@ -8,7 +8,6 @@ const io = new Server(server, { cors: { origin: "*" } });
 
 app.use(express.static(__dirname + '/public'));
 
-// 비밀번호 및 데이터 설정
 const rawLeaders = [
     { name: "박상우", points: 1600, pw: "1345" },
     { name: "박규현", points: 1800, pw: "2468" },
@@ -89,7 +88,6 @@ function shuffle(array) {
     return arr;
 }
 
-// 실시간 상태 관리 변수
 let state = {
     teams: [],
     publicQueue: [],
@@ -140,7 +138,6 @@ function broadcastState() {
 io.on('connection', (socket) => {
     socket.emit('stateUpdate', state);
 
-    // 비밀번호 검증
     socket.on('verifyPassword', ({ targetId, password }, callback) => {
         let isValid = false;
         if (targetId === -1 && password === HOST_PW) isValid = true;
@@ -148,7 +145,6 @@ io.on('connection', (socket) => {
         callback({ success: isValid });
     });
 
-    // 사회자: 다음 경매 시작
     socket.on('startNextAuction', () => {
         if (state.auctionActive) return;
 
@@ -173,7 +169,6 @@ io.on('connection', (socket) => {
         broadcastState();
     });
 
-    // 팀장: 입찰
     socket.on('submitBid', ({ teamId, bidVal }) => {
         if (!state.auctionActive) return;
         const team = state.teams.find(t => t.id === teamId);
@@ -193,7 +188,6 @@ io.on('connection', (socket) => {
         broadcastState();
     });
 
-    // 사회자: 5초 카운트다운 시작
     socket.on('startCountdown', () => {
         if (!state.auctionActive || state.timerRunning) return;
 
@@ -214,7 +208,6 @@ io.on('connection', (socket) => {
         }, 100);
     });
 
-    // 경매 종료 처리
     function finalizeAuction() {
         state.auctionActive = false;
         state.timerRunning = false;
@@ -236,7 +229,6 @@ io.on('connection', (socket) => {
         broadcastState();
     }
 
-    // 사회자: 강제 유찰
     socket.on('forcePass', () => {
         if (!state.auctionActive) return;
         clearInterval(timerInterval);
@@ -244,7 +236,6 @@ io.on('connection', (socket) => {
         finalizeAuction();
     });
 
-    // 사회자: 순서 섞기
     socket.on('shuffleMembers', () => {
         if (state.auctionActive) return;
         const fullShuffled = shuffle([...state.publicQueue, ...state.hiddenQueue]);
@@ -254,7 +245,6 @@ io.on('connection', (socket) => {
         broadcastState();
     });
 
-    // 사회자: 경매 리셋
     socket.on('resetAuction', () => {
         initAuction();
         broadcastState();
