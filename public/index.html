@@ -34,6 +34,11 @@
         .btn-line-filter { flex: 1; background: #222936; color: var(--text-sub); border: 1px solid var(--border-color); padding: 4px 0; border-radius: 4px; font-size: 11px; cursor: pointer; text-align: center; }
         .btn-line-filter.active { background: var(--accent-blue); color: #000; font-weight: bold; border-color: var(--accent-blue); }
         
+        .history-tab-group { display: flex; gap: 4px; margin-bottom: 2px; }
+        .btn-hist-tab { flex: 1; background: #222936; color: var(--text-sub); border: 1px solid var(--border-color); padding: 4px 0; border-radius: 4px; font-size: 11px; cursor: pointer; text-align: center; font-weight: bold; }
+        .btn-hist-tab.active-win { background: var(--accent-gold); color: #000; border-color: var(--accent-gold); }
+        .btn-hist-tab.active-pass { background: var(--accent-red); color: #fff; border-color: var(--accent-red); }
+
         .compact-queue-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; overflow-y: auto; max-height: 48%; }
         .scroll-list { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 4px; }
         .list-item { background: #222936; padding: 5px 8px; border-radius: 4px; font-size: 11px; display: flex; justify-content: space-between; align-items: center; }
@@ -155,8 +160,13 @@
         </div>
 
         <div class="sidebar">
-            <div class="panel-title">낙찰/유찰 이력</div>
+            <div class="panel-title">경매 이력 현황</div>
+            <div class="history-tab-group">
+                <button class="btn-hist-tab active-win" id="btn-tab-win" onclick="setHistoryTab('WIN')">낙찰 이력 (<span id="cnt-win">0</span>)</button>
+                <button class="btn-hist-tab" id="btn-tab-pass" onclick="setHistoryTab('PASS')">유찰 이력 (<span id="cnt-pass">0</span>)</button>
+            </div>
             <div class="scroll-list" id="history-list" style="max-height:22%;"></div>
+
             <div class="panel-title" style="margin-top:5px;">라인별 남은 매물 (등수순)</div>
             <div class="line-filter-group">
                 <button class="btn-line-filter active btn-right-filter" onclick="setRightLineFilter('ALL', this)">전체</button>
@@ -167,6 +177,7 @@
                 <button class="btn-line-filter btn-right-filter" onclick="setRightLineFilter('SUP', this)">서폿</button>
             </div>
             <div class="scroll-list" id="tier-order-list"></div>
+
             <div class="panel-title" style="margin-top:5px;">실시간 경매 로그</div>
             <div class="scroll-list" id="auction-log" style="max-height:22%;"></div>
         </div>
@@ -179,6 +190,7 @@
         let pendingUserId = -2;
         let selectedLineFilter = 'ALL';
         let rightLineFilter = 'ALL';
+        let currentHistoryTab = 'WIN'; // 'WIN' 또는 'PASS'
 
         const leaderNames = ["박상우","박규현","최병주","박찬영","서민우","김대현","한진우","나덕용","서민준","송기연","강민서","김건희"];
 
@@ -235,10 +247,23 @@
             }
         });
 
+        function setHistoryTab(tab) {
+            currentHistoryTab = tab;
+            const winBtn = document.getElementById('btn-tab-win');
+            const passBtn = document.getElementById('btn-tab-pass');
+            if (tab === 'WIN') {
+                winBtn.className = 'btn-hist-tab active-win';
+                passBtn.className = 'btn-hist-tab';
+            } else {
+                winBtn.className = 'btn-hist-tab';
+                passBtn.className = 'btn-hist-tab active-pass';
+            }
+            render();
+        }
+
         function render() {
             if (!currentState) return;
 
-            // 현재 사용자가 입력창에 작성 중이던 포인트 임시 보존
             const savedBidInputs = {};
             currentState.teams.forEach(team => {
                 const inputEl = document.getElementById(`bid-input-${team.id}`);
@@ -320,13 +345,30 @@
                     </div>`;
             });
 
-            // 화면을 새로 그린 뒤 보존했던 입력값 복원
             currentState.teams.forEach(team => {
                 const inputEl = document.getElementById(`bid-input-${team.id}`);
                 if (inputEl && savedBidInputs[team.id] !== undefined) {
                     inputEl.value = savedBidInputs[team.id];
                 }
             });
+
+            // 이력 분리 렌더링
+            const wins = currentState.history.filter(h => h.result !== '유찰');
+            const passes = currentState.history.filter(h => h.result === '유찰');
+
+            document.getElementById('cnt-win').innerText = wins.length;
+            document.getElementById('cnt-pass').innerText = passes.length;
+
+            const histBox = document.getElementById('history-list');
+            if (currentHistoryTab === 'WIN') {
+                histBox.innerHTML = wins.length > 0 
+                    ? wins.map(h => `<div class="list-item"><span><b>${h.player}</b></span><span>${h.result}</span><span style="color:var(--accent-gold);">${h.price}</span></div>`).join('')
+                    : `<div style="font-size:11px; color:var(--text-sub); text-align:center; padding:10px;">낙찰된 이력이 없습니다.</div>`;
+            } else {
+                histBox.innerHTML = passes.length > 0 
+                    ? passes.map(h => `<div class="list-item"><span><b>${h.player}</b></span><span style="color:var(--accent-red); font-weight:bold;">유찰됨</span><span style="color:#888;">-</span></div>`).join('')
+                    : `<div style="font-size:11px; color:var(--text-sub); text-align:center; padding:10px;">유찰된 이력이 없습니다.</div>`;
+            }
 
             const tierBox = document.getElementById('tier-order-list');
             tierBox.innerHTML = '';
@@ -337,7 +379,6 @@
                 tierBox.innerHTML += `<div class="list-item"><div><span class="line-badge">${p.line}</span> <b>${p.name}</b></div><div><span class="tier-badge tier-${p.tier}">${p.tier}</span> <span class="rank-badge">${p.rank}등</span></div></div>`;
             });
 
-            document.getElementById('history-list').innerHTML = currentState.history.map(h => `<div class="list-item"><span><b>${h.player}</b></span><span>${h.result}</span><span style="color:var(--accent-gold);">${h.price}</span></div>`).join('');
             document.getElementById('auction-log').innerHTML = currentState.logs.map(l => `<div style="font-size:11px; padding:3px 0; border-bottom:1px solid #222936;">${l}</div>`).join('');
         }
 
