@@ -237,6 +237,16 @@
 
         function render() {
             if (!currentState) return;
+
+            // 현재 사용자가 입력창에 작성 중이던 포인트 임시 보존
+            const savedBidInputs = {};
+            currentState.teams.forEach(team => {
+                const inputEl = document.getElementById(`bid-input-${team.id}`);
+                if (inputEl) {
+                    savedBidInputs[team.id] = inputEl.value;
+                }
+            });
+
             initLeaderSelect();
 
             const isHost = (currentUserId === -1);
@@ -310,6 +320,14 @@
                     </div>`;
             });
 
+            // 화면을 새로 그린 뒤 보존했던 입력값 복원
+            currentState.teams.forEach(team => {
+                const inputEl = document.getElementById(`bid-input-${team.id}`);
+                if (inputEl && savedBidInputs[team.id] !== undefined) {
+                    inputEl.value = savedBidInputs[team.id];
+                }
+            });
+
             const tierBox = document.getElementById('tier-order-list');
             tierBox.innerHTML = '';
             const linePriority = ["TOP", "JGL", "MID", "ADC", "SUP"];
@@ -324,13 +342,14 @@
         }
 
         function startNextAuction() { socket.emit('startNextAuction'); }
+        
         function submitBid(teamId) {
             const input = document.getElementById(`bid-input-${teamId}`);
             const bidVal = parseInt(input.value);
             const team = currentState.teams.find(t => t.id === teamId);
 
             if (isNaN(bidVal) || bidVal < 0) {
-                alert('올바른 포인트 숫자를 입력해 주세요.');
+                alert('입찰하실 포인트 수치를 올바르게 입력해 주세요.');
                 return;
             }
             if (bidVal % 10 !== 0) {
@@ -338,7 +357,7 @@
                 return;
             }
             if (team && team.points < bidVal) {
-                alert(`보유하신 포인트가 부족합니다! (현재 보유: ${team.points} pt)`);
+                alert(`보유하신 포인트가 부족합니다!\n(현재 보유: ${team.points} pt / 입력 금액: ${bidVal} pt)`);
                 return;
             }
             if (currentState.currentBid > 0 && bidVal <= currentState.currentBid) {
@@ -349,6 +368,7 @@
             socket.emit('submitBid', { teamId, bidVal });
             input.value = '';
         }
+
         function startCountdown() { socket.emit('startCountdown'); }
         function forcePass() { socket.emit('forcePass'); }
         function shuffleMembers() { socket.emit('shuffleMembers'); }
