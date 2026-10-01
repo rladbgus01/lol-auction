@@ -71,8 +71,9 @@
         .team-card { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
         .team-card.bidding { border-color: var(--accent-blue); box-shadow: 0 0 10px rgba(0, 210, 255, 0.2); }
         .slots-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
-        .slot { background: #12161f; border: 1px dashed var(--border-color); height: 32px; border-radius: 4px; display: flex; align-items: center; justify-content: space-between; padding: 0 5px; font-size: 11px; }
+        .slot { background: #12161f; border: 1px dashed var(--border-color); height: 36px; border-radius: 4px; display: flex; align-items: center; justify-content: space-between; padding: 0 6px; font-size: 11px; }
         .slot.filled { border-style: solid; background: #222936; }
+        .slot-price { color: var(--accent-gold); font-size: 10px; font-weight: bold; }
         .bid-input-group { display: flex; gap: 4px; margin-top: 2px; }
         .bid-input { width: 100%; padding: 4px 6px; background: #12161f; border: 1px solid var(--border-color); color: #fff; border-radius: 4px; font-size: 11px; text-align: right; }
 
@@ -291,7 +292,12 @@
                 let slotsHTML = '';
                 for (let i = 0; i < 4; i++) {
                     const m = team.slots[i];
-                    slotsHTML += m ? `<div class="slot filled"><span><b>${m.name}</b></span><span class="line-badge">${m.line} (${m.rank}등)</span></div>` : `<div class="slot"><span style="color:#4a5260;">빈 슬롯</span></div>`;
+                    slotsHTML += m 
+                        ? `<div class="slot filled">
+                            <div><b>${m.name}</b> <span class="line-badge">${m.line} (${m.rank}등)</span></div>
+                            <span class="slot-price">${m.bidPrice} pt</span>
+                           </div>` 
+                        : `<div class="slot"><span style="color:#4a5260;">빈 슬롯</span></div>`;
                 }
                 teamsGrid.innerHTML += `
                     <div class="team-card ${currentState.highestBidder && currentState.highestBidder.id === team.id ? 'bidding' : ''}">
@@ -321,6 +327,8 @@
         function submitBid(teamId) {
             const input = document.getElementById(`bid-input-${teamId}`);
             const bidVal = parseInt(input.value);
+            const team = currentState.teams.find(t => t.id === teamId);
+
             if (isNaN(bidVal) || bidVal < 0) {
                 alert('올바른 포인트 숫자를 입력해 주세요.');
                 return;
@@ -329,6 +337,15 @@
                 alert('입찰 포인트는 10단위(예: 10, 50, 100, 500, 1300 등)여야 합니다.');
                 return;
             }
+            if (team && team.points < bidVal) {
+                alert(`보유하신 포인트가 부족합니다! (현재 보유: ${team.points} pt)`);
+                return;
+            }
+            if (currentState.currentBid > 0 && bidVal <= currentState.currentBid) {
+                alert(`현재 최고 입찰가(${currentState.currentBid} pt)보다 높은 금액을 입력해야 합니다.`);
+                return;
+            }
+
             socket.emit('submitBid', { teamId, bidVal });
             input.value = '';
         }
