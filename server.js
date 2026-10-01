@@ -8,18 +8,19 @@ const io = new Server(server, { cors: { origin: "*" } });
 
 app.use(express.static(__dirname + '/public'));
 
+// 요청하신 수정된 팀장 포인트 반영
 const rawLeaders = [
-    { name: "박상우", points: 1600, pw: "1345" },
+    { name: "박상우", points: 1700, pw: "1345" },
     { name: "박규현", points: 1800, pw: "2468" },
-    { name: "최병주", points: 1750, pw: "3579" },
-    { name: "박찬영", points: 1700, pw: "4680" },
+    { name: "최병주", points: 1700, pw: "3579" },
+    { name: "박찬영", points: 1800, pw: "4680" },
     { name: "서민우", points: 1750, pw: "5791" },
-    { name: "김대현", points: 1800, pw: "6802" },
-    { name: "한진우", points: 1750, pw: "7913" },
-    { name: "나덕용", points: 1700, pw: "8024" },
-    { name: "서민준", points: 1700, pw: "9135" },
-    { name: "송기연", points: 1750, pw: "1029" },
-    { name: "강민서", points: 1800, pw: "2130" },
+    { name: "김대현", points: 1750, pw: "6802" },
+    { name: "한진우", points: 1850, pw: "7913" },
+    { name: "나덕용", points: 1910, pw: "8024" },
+    { name: "서민준", points: 2100, pw: "9135" },
+    { name: "송기연", points: 2150, pw: "1029" },
+    { name: "강민서", points: 2000, pw: "2130" },
     { name: "김건희", points: 1850, pw: "3241" }
 ];
 const HOST_PW = "7788";
@@ -92,7 +93,7 @@ let state = {
     teams: [],
     publicQueue: [],
     hiddenQueue: [],
-    passedQueue: [], // 따로 보관할 유찰 대기열
+    passedQueue: [],
     currentAuctionPlayer: null,
     currentBid: 0,
     highestBidder: null,
@@ -150,16 +151,13 @@ io.on('connection', (socket) => {
     socket.on('startNextAuction', () => {
         if (state.auctionActive) return;
 
-        // 1. 공개 대기열(1~24)에서 진행
         if (state.publicQueue.length > 0) {
             state.currentAuctionPlayer = state.publicQueue.shift();
         } 
-        // 2. 비공개 대기열(25~48)에서 무작위 추출
         else if (state.hiddenQueue.length > 0) {
             const randIdx = Math.floor(Math.random() * state.hiddenQueue.length);
             state.currentAuctionPlayer = state.hiddenQueue.splice(randIdx, 1)[0];
         } 
-        // 3. 48명 모두 경매 완료 후 유찰된 인원이 남아있을 때 무작위 추출
         else if (state.passedQueue.length > 0) {
             const randIdx = Math.floor(Math.random() * state.passedQueue.length);
             state.currentAuctionPlayer = state.passedQueue.splice(randIdx, 1)[0];
@@ -234,7 +232,6 @@ io.on('connection', (socket) => {
         } else {
             state.logs.unshift(`<span style="color:#ff4655;"><b>[유찰]</b> ${state.currentAuctionPlayer.name} (입찰자 없음) -> 유찰 대기열 이동</span>`);
             state.history.unshift({ player: state.currentAuctionPlayer.name, result: '유찰', price: '-' });
-            // 유찰된 인원은 48명 경매 완료 시까지 별도 대기열에 보관
             state.passedQueue.push(state.currentAuctionPlayer);
         }
 
