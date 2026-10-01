@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>10기 1차 리그전 경매 (실시간 연동)</title>
+    <title>10기 1차 리그전 경매</title>
     <script src="/socket.io/socket.io.js"></script>
     <style>
         :root {
@@ -96,7 +96,7 @@
     </div>
 
     <header>
-        <h1>10기 1차 리그전 경매 (실시간 연동)</h1>
+        <h1>10기 1차 리그전 경매</h1>
         <div class="header-controls">
             <div class="leader-select-group">
                 <label for="current-user-select">🔑 본인 선택:</label>
@@ -245,14 +245,12 @@
             document.getElementById('btn-pass').disabled = !isHost || !currentState.auctionActive;
             document.getElementById('btn-timer').disabled = !isHost || !(currentState.auctionActive && !currentState.timerRunning);
 
-            // 남아있는 매물 수 집계
             const allRemaining = [...currentState.publicQueue, ...currentState.hiddenQueue];
             if (currentState.currentAuctionPlayer) allRemaining.push(currentState.currentAuctionPlayer);
             const counts = { ALL: allRemaining.length, TOP: 0, JGL: 0, MID: 0, ADC: 0, SUP: 0 };
             allRemaining.forEach(p => counts[p.line]++);
             Object.keys(counts).forEach(k => { if(document.getElementById(`cnt-${k}`)) document.getElementById(`cnt-${k}`).innerText = counts[k]; });
 
-            // 공개 대기열 렌더링
             const pubBox = document.getElementById('public-queue');
             pubBox.innerHTML = '';
             currentState.publicQueue.forEach((p, idx) => {
@@ -260,7 +258,6 @@
                 pubBox.innerHTML += `<div class="list-item"><div><b>${idx + 1}.</b> ${p.name}</div><div><span class="line-badge">${p.line}</span> <span class="tier-badge tier-${p.tier}">${p.tier}</span></div></div>`;
             });
 
-            // 비공개 대기열 렌더링
             const hidBox = document.getElementById('hidden-queue');
             hidBox.innerHTML = '';
             currentState.hiddenQueue.forEach((p) => {
@@ -268,7 +265,6 @@
                 hidBox.innerHTML += `<div class="list-item"><div><b>${p.name}</b></div><div><span class="line-badge">${p.line}</span> <span class="tier-badge tier-${p.tier}">${p.tier}</span></div></div>`;
             });
 
-            // 중앙 경매판
             if (currentState.currentAuctionPlayer) {
                 document.getElementById('target-name').innerText = currentState.currentAuctionPlayer.name;
                 document.getElementById('target-tier').innerHTML = `<span class="tier-badge tier-${currentState.currentAuctionPlayer.tier}">${currentState.currentAuctionPlayer.line} | ${currentState.currentAuctionPlayer.tier} | ${currentState.currentAuctionPlayer.rank}등</span>`;
@@ -287,7 +283,6 @@
                 document.getElementById('timer-bar').style.width = '100%';
             }
 
-            // 팀 카드 렌더링
             const teamsGrid = document.getElementById('teams-grid');
             teamsGrid.innerHTML = '';
             currentState.teams.forEach(team => {
@@ -309,7 +304,6 @@
                     </div>`;
             });
 
-            // 우측 현황판 및 이력
             const tierBox = document.getElementById('tier-order-list');
             tierBox.innerHTML = '';
             const linePriority = ["TOP", "JGL", "MID", "ADC", "SUP"];
