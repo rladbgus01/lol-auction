@@ -70,7 +70,7 @@
         .leader-select { background: var(--panel-bg); color: #fff; border: 1px solid var(--border-color); padding: 2px 4px; border-radius: 4px; font-size: 11px; font-weight: bold; outline: none; cursor: pointer; }
         
         .main-container { display: grid; grid-template-columns: 360px 1fr 340px; gap: 8px; flex: 1; min-height: 0; }
-        .sidebar { background: var(--panel-bg); border-radius: 8px; border: 1px solid var(--border-color); padding: 8px; display: flex; flex-direction: column; gap: 4px; min-height: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .sidebar { background: var(--panel-bg); border-radius: 8px; border: 1px solid var(--border-color); padding: 8px; display: flex; flex-direction: column; gap: 6px; min-height: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .panel-title { font-size: 11px; font-weight: 700; color: var(--accent-gold); border-bottom: 1px solid var(--border-color); padding-bottom: 3px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
 
         .sidebar-section { display: flex; flex-direction: column; flex: 1; min-height: 0; gap: 3px; }
@@ -86,11 +86,12 @@
 
         .compact-queue-grid-2col { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; overflow-y: auto; flex: 1; min-height: 0; align-content: start; }
 
-        .scroll-list { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 2px; min-height: 0; }
+        .scroll-list { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 3px; min-height: 0; }
         .list-item { background: var(--card-bg); padding: 3px 5px; border-radius: 3px; font-size: 9.5px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.03); white-space: nowrap; overflow: hidden; }
         
-        /* 오른쪽 라인별 남은 매물 아이템 가시성 강화 */
-        .right-list-item { background: var(--card-bg); padding: 5px 8px; border-radius: 4px; font-size: 11px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); white-space: nowrap; }
+        /* 오른쪽 사이드바 개선용 아이템 스타일 */
+        .right-hist-item { background: var(--card-bg); padding: 6px 8px; border-radius: 4px; font-size: 11px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); white-space: nowrap; }
+        .right-list-item { background: var(--card-bg); padding: 4px 6px; border-radius: 4px; font-size: 10.5px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); white-space: nowrap; }
 
         .badge-group { display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
         .line-badge { font-size: 8.5px; padding: 1.5px 4px; border-radius: 2px; background: #111827; color: var(--accent-gold); font-weight: 800; border: 1px solid rgba(240, 198, 116, 0.3); white-space: nowrap; flex-shrink: 0; }
@@ -283,29 +284,34 @@
             <div class="teams-grid" id="teams-grid"></div>
         </div>
 
-        <!-- 오른쪽 사이드바 (라인별 남은 매물 가시성 강화) -->
+        <!-- 오른쪽 사이드바 (경매 이력 현황 및 로그 확대, 남은 매물 높이 축소) -->
         <div class="sidebar">
-            <div class="panel-title">경매 이력 현황</div>
-            <div class="history-tab-group">
-                <button class="btn-hist-tab active-win" id="btn-tab-win" onclick="setHistoryTab('WIN')">낙찰 이력 (<span id="cnt-win">0</span>)</button>
-                <button class="btn-hist-tab" id="btn-tab-pass" onclick="setHistoryTab('PASS')">유찰 이력 (<span id="cnt-pass">0</span>)</button>
+            <div class="sidebar-section" style="flex: 1.2;">
+                <div class="panel-title">경매 이력 현황</div>
+                <div class="history-tab-group">
+                    <button class="btn-hist-tab active-win" id="btn-tab-win" onclick="setHistoryTab('WIN')">낙찰 이력 (<span id="cnt-win">0</span>)</button>
+                    <button class="btn-hist-tab" id="btn-tab-pass" onclick="setHistoryTab('PASS')">유찰 이력 (<span id="cnt-pass">0</span>)</button>
+                </div>
+                <div class="scroll-list" id="history-list" style="gap: 4px;"></div>
             </div>
-            <div class="scroll-list" id="history-list" style="max-height: 85px;"></div>
 
-            <div class="panel-title" style="margin-top:3px;">라인별 남은 매물 (등수순)</div>
-            <div class="line-filter-group">
-                <button class="btn-line-filter active btn-right-filter" onclick="setRightLineFilter('ALL', this)">전체</button>
-                <button class="btn-line-filter btn-right-filter" onclick="setRightLineFilter('TOP', this)">탑</button>
-                <button class="btn-line-filter btn-right-filter" onclick="setRightLineFilter('JGL', this)">정글</button>
-                <button class="btn-line-filter btn-right-filter" onclick="setRightLineFilter('MID', this)">미드</button>
-                <button class="btn-line-filter btn-right-filter" onclick="setRightLineFilter('ADC', this)">원딜</button>
-                <button class="btn-line-filter btn-right-filter" onclick="setRightLineFilter('SUP', this)">서폿</button>
+            <div class="sidebar-section" style="flex: 1; border-top: 1px solid var(--border-color); padding-top: 4px;">
+                <div class="panel-title">라인별 남은 매물 (등수순)</div>
+                <div class="line-filter-group">
+                    <button class="btn-line-filter active btn-right-filter" onclick="setRightLineFilter('ALL', this)">전체</button>
+                    <button class="btn-line-filter btn-right-filter" onclick="setRightLineFilter('TOP', this)">탑</button>
+                    <button class="btn-line-filter btn-right-filter" onclick="setRightLineFilter('JGL', this)">정글</button>
+                    <button class="btn-line-filter btn-right-filter" onclick="setRightLineFilter('MID', this)">미드</button>
+                    <button class="btn-line-filter btn-right-filter" onclick="setRightLineFilter('ADC', this)">원딜</button>
+                    <button class="btn-line-filter btn-right-filter" onclick="setRightLineFilter('SUP', this)">서폿</button>
+                </div>
+                <div class="scroll-list" id="tier-order-list" style="gap: 3px;"></div>
             </div>
-            <!-- 스크롤 가능하며 글씨와 간격이 시원한 매물 리스트 -->
-            <div class="scroll-list" id="tier-order-list" style="gap: 4px;"></div>
 
-            <div class="panel-title" style="margin-top:3px;">실시간 경매 로그</div>
-            <div class="scroll-list" id="auction-log" style="max-height: 75px;"></div>
+            <div class="sidebar-section" style="flex: 1; border-top: 1px solid var(--border-color); padding-top: 4px;">
+                <div class="panel-title">실시간 경매 로그</div>
+                <div class="scroll-list" id="auction-log" style="gap: 2px;"></div>
+            </div>
         </div>
     </div>
 
@@ -434,7 +440,13 @@
             if (currentState.currentAuctionPlayer) {
                 document.getElementById('target-name').innerText = currentState.currentAuctionPlayer.name;
                 document.getElementById('target-tier').innerHTML = `<span class="tier-badge tier-${currentState.currentAuctionPlayer.tier}">${currentState.currentAuctionPlayer.line} | ${currentState.currentAuctionPlayer.tier} | ${currentState.currentAuctionPlayer.rank}등</span>`;
-                document.getElementById('current-order-text').innerText = `현재 경매 대상자 (#${currentState.auctionIndex})`;
+                
+                // 유찰 멤버 경매 진행 표시 구분
+                if (currentState.isPassedAuction) {
+                    document.getElementById('current-order-text').innerText = `유찰 멤버 경매 진행 중 (${currentState.passedQueue ? currentState.passedQueue.length : 0}명 남음)`;
+                } else {
+                    document.getElementById('current-order-text').innerText = `현재 경매 대상자 (#${currentState.auctionIndex})`;
+                }
             } else {
                 document.getElementById('target-name').innerText = '-';
                 document.getElementById('target-tier').innerText = '-';
@@ -500,18 +512,19 @@
             document.getElementById('cnt-win').innerText = wins.length;
             document.getElementById('cnt-pass').innerText = passes.length;
 
+            // 오른쪽 '경매 이력 현황' 가시성 개선
             const histBox = document.getElementById('history-list');
             if (currentHistoryTab === 'WIN') {
                 histBox.innerHTML = wins.length > 0 
-                    ? wins.map(h => `<div class="list-item"><span><b>${h.player}</b></span><span>${h.result}</span><span style="color:var(--accent-gold); font-weight:bold;">${h.price}</span></div>`).join('')
-                    : `<div style="font-size:9.5px; color:var(--text-sub); text-align:center; padding:4px;">낙찰된 이력이 없습니다.</div>`;
+                    ? wins.map(h => `<div class="right-hist-item"><span style="color:#fff;"><b>${h.player}</b></span><span>${h.result}</span><span style="color:var(--accent-gold); font-weight:800;">${h.price}</span></div>`).join('')
+                    : `<div style="font-size:10.5px; color:var(--text-sub); text-align:center; padding:10px;">낙찰된 이력이 없습니다.</div>`;
             } else {
                 histBox.innerHTML = passes.length > 0 
-                    ? passes.map(h => `<div class="list-item"><span><b>${h.player}</b></span><span style="color:var(--accent-red); font-weight:bold;">유찰됨</span><span style="color:#888;">-</span></div>`).join('')
-                    : `<div style="font-size:9.5px; color:var(--text-sub); text-align:center; padding:4px;">유찰된 이력이 없습니다.</div>`;
+                    ? passes.map(h => `<div class="right-hist-item"><span style="color:#fff;"><b>${h.player}</b></span><span style="color:var(--accent-red); font-weight:bold;">유찰됨</span><span style="color:#888;">-</span></div>`).join('')
+                    : `<div style="font-size:10.5px; color:var(--text-sub); text-align:center; padding:10px;">유찰된 이력이 없습니다.</div>`;
             }
 
-            // 오른쪽 '라인별 남은 매물 (등수순)' 디자인 및 시인성 개선
+            // 오른쪽 '라인별 남은 매물 (등수순)'
             const tierBox = document.getElementById('tier-order-list');
             tierBox.innerHTML = '';
             const linePriority = ["TOP", "JGL", "MID", "ADC", "SUP"];
@@ -520,7 +533,7 @@
             filtered.forEach(p => {
                 tierBox.innerHTML += `
                     <div class="right-list-item">
-                        <div style="display:flex; align-items:center; gap:6px;">
+                        <div style="display:flex; align-items:center; gap:5px;">
                             <span class="line-badge">${p.line}</span>
                             <b style="color:#fff;">${p.name}</b>
                         </div>
@@ -531,7 +544,8 @@
                     </div>`;
             });
 
-            document.getElementById('auction-log').innerHTML = currentState.logs.map(l => `<div style="font-size:9.5px; padding:1.5px 0; border-bottom:1px solid rgba(255,255,255,0.05);">${l}</div>`).join('');
+            // 실시간 경매 로그
+            document.getElementById('auction-log').innerHTML = currentState.logs.map(l => `<div style="font-size:10.5px; padding:3px 4px; background: rgba(255,255,255,0.02); border-radius:3px; border-bottom:1px solid rgba(255,255,255,0.04);">${l}</div>`).join('');
         }
 
         function startNextAuction() { socket.emit('startNextAuction'); }
