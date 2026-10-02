@@ -57,12 +57,12 @@ const lineOrderedMembers = [
     { name: "김희섭", line: "ADC", rank: 2, tier: "마스터" },
     { name: "김언중", line: "ADC", rank: 3, tier: "마스터" },
     { name: "김상우", line: "ADC", rank: 4, tier: "마스터" },
-    { name: "이건우", line: "ADC", rank: 5, tier: "다이아" },
-    { name: "채승병", line: "ADC", rank: 6, tier: "다이아" },
-    { name: "김경태", line: "ADC", rank: 7, tier: "다이아" },
+    { name: "이건우", line: "ADC", rank: 5, tier: "마스터" },
+    { name: "채승병", line: "ADC", rank: 6, tier: "마스터" },
+    { name: "김경태", line: "ADC", rank: 7, tier: "마스터" },
     { name: "최상연", line: "ADC", rank: 8, tier: "다이아" },
     { name: "한재성", line: "ADC", rank: 9, tier: "다이아" },
-    { name: "김대휘", line: "ADC", rank: 10, tier: "플래티넘" },
+    { name: "김대휘", line: "ADC", rank: 10, tier: "에메랄드" },
     { name: "김선진", line: "ADC", rank: 11, tier: "플래티넘" },
     { name: "조진우", line: "ADC", rank: 12, tier: "플래티넘" },
     { name: "권오창", line: "ADC", rank: 13, tier: "골드" },
@@ -104,9 +104,7 @@ let state = {
     history: []
 };
 
-// 되돌리기 기능을 위한 백업 데이터 저장 변수
 let lastAuctionStateBackup = null;
-
 let timerInterval = null;
 
 function initAuction() {
@@ -138,11 +136,19 @@ function initAuction() {
 initAuction();
 
 function broadcastState() {
-    io.emit('stateUpdate', { ...state, canUndo: !!lastAuctionStateBackup });
+    io.emit('stateUpdate', { 
+        ...state, 
+        canUndo: !!lastAuctionStateBackup,
+        isPassedAuction: state.publicQueue.length === 0 && state.hiddenQueue.length === 0 && state.passedQueue.length > 0
+    });
 }
 
 io.on('connection', (socket) => {
-    socket.emit('stateUpdate', { ...state, canUndo: !!lastAuctionStateBackup });
+    socket.emit('stateUpdate', { 
+        ...state, 
+        canUndo: !!lastAuctionStateBackup,
+        isPassedAuction: state.publicQueue.length === 0 && state.hiddenQueue.length === 0 && state.passedQueue.length > 0
+    });
 
     socket.on('verifyPassword', ({ targetId, password }, callback) => {
         let isValid = false;
@@ -162,8 +168,7 @@ io.on('connection', (socket) => {
             state.currentAuctionPlayer = state.hiddenQueue.splice(randIdx, 1)[0];
         } 
         else if (state.passedQueue.length > 0) {
-            const randIdx = Math.floor(Math.random() * state.passedQueue.length);
-            state.currentAuctionPlayer = state.passedQueue.splice(randIdx, 1)[0];
+            state.currentAuctionPlayer = state.passedQueue.shift();
         } 
         else {
             return;
@@ -221,7 +226,6 @@ io.on('connection', (socket) => {
     });
 
     function finalizeAuction() {
-        // 백업 생성 (실수로 낙찰/유찰 처리했을 때 되돌리기 위해 현재 경매 진행 상태 저장)
         lastAuctionStateBackup = JSON.parse(JSON.stringify({
             teams: state.teams,
             publicQueue: state.publicQueue,
@@ -256,7 +260,6 @@ io.on('connection', (socket) => {
         broadcastState();
     }
 
-    // 되돌리기 이벤트 처리
     socket.on('undoLastAuction', () => {
         if (!lastAuctionStateBackup || state.auctionActive) return;
 
@@ -278,7 +281,7 @@ io.on('connection', (socket) => {
         clearInterval(timerInterval);
         state.logs.unshift(`<span style="color:#38bdf8;"><b>[되돌리기]</b> #${state.auctionIndex} (${state.currentAuctionPlayer.name}) 경매 상태로 다시 원상복구되었습니다.</span>`);
         
-        lastAuctionStateBackup = null; // 되돌리기 후 백업 초기화
+        lastAuctionStateBackup = null;
         broadcastState();
     });
 
