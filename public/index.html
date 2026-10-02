@@ -3,88 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>10기 1차 리그전 경매</title>
+    <title>로밍 10기 1차 리그전 경매</title>
     <script src="/socket.io/socket.io.js"></script>
     <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
         :root {
-            --bg-color: #0f1218;
-            --panel-bg: #1a1f29;
-            --accent-gold: #e5b849;
-            --accent-blue: #00d2ff;
-            --accent-red: #ff4655;
-            --accent-green: #00ff88;
-            --text-main: #ffffff;
-            --text-sub: #a0a6b5;
-            --border-color: #2a3240;
+            --bg-color: #0b0e14;
+            --panel-bg: #161b26;
+            --accent-gold: #f0c674;
+            --accent-gold-bright: #ffd700;
+            --accent-blue: #38bdf8;
+            --accent-red: #f43f5e;
+            --accent-green: #34d399;
+            --accent-purple: #c084fc;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border-color: #273043;
+            --card-bg: #1e2536;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); padding: 12px; display: flex; flex-direction: column; gap: 12px; min-height: 100vh; }
-        header { display: flex; justify-content: space-between; align-items: center; background: var(--panel-bg); padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border-color); flex-wrap: wrap; gap: 10px; }
-        header h1 { font-size: 20px; color: var(--accent-gold); }
+        
+        body { 
+            background-color: var(--bg-color); 
+            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0b0e14 70%);
+            color: var(--text-main); 
+            padding: 12px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            min-height: 100vh; 
+        }
+
+        header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: linear-gradient(135deg, #1e2538 0%, #111522 100%); 
+            padding: 12px 24px; 
+            border-radius: 12px; 
+            border: 1px solid #334155; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            flex-wrap: wrap; 
+            gap: 10px; 
+        }
+
+        .header-title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        header h1 { 
+            font-size: 22px; 
+            font-weight: 800;
+            background: linear-gradient(90deg, #f0c674, #ffd700, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 15px rgba(240, 198, 116, 0.3);
+        }
+
         .header-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-        .leader-select-group { display: flex; align-items: center; gap: 8px; background: #12161f; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--accent-blue); }
-        .leader-select { background: var(--panel-bg); color: #fff; border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 4px; font-size: 13px; font-weight: bold; outline: none; }
+        .leader-select-group { display: flex; align-items: center; gap: 8px; background: #0f131c; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--accent-blue); }
+        .leader-select { background: var(--panel-bg); color: #fff; border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 6px; font-size: 13px; font-weight: bold; outline: none; cursor: pointer; }
         
         .main-container { display: grid; grid-template-columns: 340px 1fr 340px; gap: 12px; flex: 1; min-height: 0; }
-        .sidebar { background: var(--panel-bg); border-radius: 8px; border: 1px solid var(--border-color); padding: 12px; display: flex; flex-direction: column; gap: 8px; min-height: 0; }
-        .panel-title { font-size: 13px; font-weight: bold; color: var(--accent-gold); border-bottom: 2px solid var(--border-color); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .sidebar { background: var(--panel-bg); border-radius: 12px; border: 1px solid var(--border-color); padding: 12px; display: flex; flex-direction: column; gap: 8px; min-height: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .panel-title { font-size: 13px; font-weight: 700; color: var(--accent-gold); border-bottom: 2px solid var(--border-color); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
         
+        .cute-banner {
+            background: linear-gradient(135deg, #2d1b4e 0%, #1e1b4b 100%);
+            border: 1px solid var(--accent-purple);
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: bold;
+            color: #e9d5ff;
+        }
+
         .line-filter-group { display: flex; gap: 3px; margin-bottom: 2px; }
-        .btn-line-filter { flex: 1; background: #222936; color: var(--text-sub); border: 1px solid var(--border-color); padding: 6px 0; border-radius: 4px; font-size: 11px; cursor: pointer; text-align: center; }
-        .btn-line-filter.active { background: var(--accent-blue); color: #000; font-weight: bold; border-color: var(--accent-blue); }
+        .btn-line-filter { flex: 1; background: #1e2536; color: var(--text-sub); border: 1px solid var(--border-color); padding: 6px 0; border-radius: 6px; font-size: 11px; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .btn-line-filter.active { background: var(--accent-blue); color: #000; font-weight: bold; border-color: var(--accent-blue); shadow: 0 0 8px rgba(56, 189, 248, 0.4); }
         
         .history-tab-group { display: flex; gap: 4px; margin-bottom: 2px; }
-        .btn-hist-tab { flex: 1; background: #222936; color: var(--text-sub); border: 1px solid var(--border-color); padding: 6px 0; border-radius: 4px; font-size: 11px; cursor: pointer; text-align: center; font-weight: bold; }
+        .btn-hist-tab { flex: 1; background: #1e2536; color: var(--text-sub); border: 1px solid var(--border-color); padding: 6px 0; border-radius: 6px; font-size: 11px; cursor: pointer; text-align: center; font-weight: bold; transition: all 0.2s; }
         .btn-hist-tab.active-win { background: var(--accent-gold); color: #000; border-color: var(--accent-gold); }
         .btn-hist-tab.active-pass { background: var(--accent-red); color: #fff; border-color: var(--accent-red); }
 
         .compact-queue-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; overflow-y: auto; max-height: 220px; }
         .scroll-list { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 4px; min-height: 120px; max-height: 250px; }
-        .list-item { background: #222936; padding: 6px 8px; border-radius: 4px; font-size: 11px; display: flex; justify-content: space-between; align-items: center; }
-        .list-item.active { border-left: 3px solid var(--accent-gold); background: #2a3447; }
+        .list-item { background: var(--card-bg); padding: 6px 8px; border-radius: 6px; font-size: 11px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.03); }
         
-        .line-badge { font-size: 9px; padding: 1px 4px; border-radius: 2px; background: #2a3447; color: var(--accent-gold); font-weight: bold; }
-        .tier-badge { font-size: 10px; padding: 2px 5px; border-radius: 3px; font-weight: bold; }
-        .tier-챌린저 { background: #ffe600; color: #000; }
+        .line-badge { font-size: 9px; padding: 2px 5px; border-radius: 4px; background: #111827; color: var(--accent-gold); font-weight: 800; border: 1px solid rgba(240, 198, 116, 0.3); }
+        .tier-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        .tier-챌린저 { background: #ffe600; color: #000; box-shadow: 0 0 6px rgba(255, 230, 0, 0.4); }
         .tier-그랜드마스터 { background: #ff4d4d; color: #fff; }
         .tier-마스터 { background: #b084cc; color: #fff; }
         .tier-다이아 { background: #6b82a8; color: #fff; }
-        .tier-에메랄드 { background: #3cb371; color: #fff; }
-        .tier-플래티넘 { background: #00bfff; color: #000; }
-        .tier-골드 { background: #e6b800; color: #000; }
-        .tier-실버 { background: #888888; color: #fff; }
-        .rank-badge { font-size: 9px; padding: 1px 4px; border-radius: 2px; background: #222d3d; color: var(--accent-blue); font-weight: bold; }
+        .tier-에메랄드 { background: #10b981; color: #fff; }
+        .tier-플래티넘 { background: #06b6d4; color: #000; }
+        .tier-골드 { background: #eab308; color: #000; }
+        .tier-실버 { background: #94a3b8; color: #000; }
+        .rank-badge { font-size: 9px; padding: 2px 4px; border-radius: 3px; background: #0f172a; color: var(--accent-blue); font-weight: bold; }
 
         .center-stage { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
-        .auction-board { background: linear-gradient(135deg, #161b24 0%, #0d1117 100%); border: 2px solid var(--accent-gold); border-radius: 10px; padding: 15px 20px; display: grid; grid-template-columns: 210px 1fr 200px; gap: 15px; align-items: center; }
-        .player-card { text-align: center; background: #222936; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); }
-        .player-card .name { font-size: 24px; font-weight: bold; margin: 6px 0; }
+        .auction-board { 
+            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%); 
+            border: 2px solid var(--accent-gold); 
+            border-radius: 14px; 
+            padding: 18px 24px; 
+            display: grid; 
+            grid-template-columns: 220px 1fr 210px; 
+            gap: 16px; 
+            align-items: center; 
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(240, 198, 116, 0.1);
+        }
+        
+        .player-card { 
+            text-align: center; 
+            background: #0f172a; 
+            padding: 14px; 
+            border-radius: 10px; 
+            border: 1px solid var(--accent-gold); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            animation: pulse-border 2s infinite;
+        }
+
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(240, 198, 116, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(240, 198, 116, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(240, 198, 116, 0); }
+        }
+
+        .player-card .name { font-size: 26px; font-weight: 800; margin: 6px 0; color: #ffffff; }
         
         .auction-status { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-        .current-bid { font-size: 34px; font-weight: 800; color: var(--accent-gold); }
+        .current-bid { font-size: 36px; font-weight: 900; color: var(--accent-gold-bright); text-shadow: 0 0 12px rgba(255, 215, 0, 0.4); }
         .timer-container { width: 100%; text-align: center; }
-        .timer-text { font-size: 28px; font-weight: bold; color: var(--accent-red); }
-        .timer-bar-bg { width: 100%; height: 6px; background: #2a3240; border-radius: 3px; overflow: hidden; margin-top: 4px; }
-        .timer-bar { height: 100%; width: 100%; background: var(--accent-red); transition: width 0.1s linear; }
+        .timer-text { font-size: 30px; font-weight: 900; color: var(--accent-red); text-shadow: 0 0 10px rgba(244, 63, 94, 0.4); }
+        .timer-bar-bg { width: 100%; height: 8px; background: #1e293b; border-radius: 4px; overflow: hidden; margin-top: 4px; border: 1px solid var(--border-color); }
+        .timer-bar { height: 100%; width: 100%; background: linear-gradient(90deg, #f43f5e, #ff0055); transition: width 0.1s linear; }
 
-        .controls { display: flex; flex-direction: column; gap: 6px; }
-        button { background: var(--accent-gold); color: #000; border: none; padding: 10px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
-        button:disabled { background: #4a5260 !important; color: #888 !important; cursor: not-allowed !important; }
+        .controls { display: flex; flex-direction: column; gap: 8px; }
+        button { 
+            background: linear-gradient(135deg, #f0c674 0%, #e5b849 100%); 
+            color: #000; 
+            border: none; 
+            padding: 10px 14px; 
+            border-radius: 8px; 
+            font-weight: 800; 
+            cursor: pointer; 
+            font-size: 13px; 
+            transition: transform 0.1s, filter 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        button:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.1); }
+        button:active:not(:disabled) { transform: translateY(1px); }
+        button:disabled { background: #334155 !important; color: #64748b !important; cursor: not-allowed !important; box-shadow: none !important; }
 
-        .teams-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; flex: 1; overflow-y: auto; }
-        .team-card { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
-        .team-card.bidding { border-color: var(--accent-blue); box-shadow: 0 0 10px rgba(0, 210, 255, 0.2); }
+        .teams-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; flex: 1; overflow-y: auto; }
+        .team-card { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; transition: border-color 0.2s; }
+        .team-card.bidding { border-color: var(--accent-blue); box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); background: #172033; }
         .slots-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
-        .slot { background: #12161f; border: 1px dashed var(--border-color); height: 38px; border-radius: 4px; display: flex; align-items: center; justify-content: space-between; padding: 0 6px; font-size: 11px; }
-        .slot.filled { border-style: solid; background: #222936; }
+        .slot { background: #0f172a; border: 1px dashed #334155; height: 38px; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-size: 11px; }
+        .slot.filled { border-style: solid; background: #1e293b; border-color: #475569; }
         .slot-price { color: var(--accent-gold); font-size: 10px; font-weight: bold; }
         .bid-input-group { display: flex; gap: 6px; margin-top: 4px; }
-        .bid-input { width: 100%; padding: 8px; background: #12161f; border: 1px solid var(--border-color); color: #fff; border-radius: 4px; font-size: 13px; text-align: right; }
+        .bid-input { width: 100%; padding: 8px; background: #0f172a; border: 1px solid var(--border-color); color: #fff; border-radius: 6px; font-size: 13px; text-align: right; font-weight: bold; }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-card { background: var(--panel-bg); border: 2px solid var(--accent-gold); padding: 24px; border-radius: 10px; width: 320px; text-align: center; display: flex; flex-direction: column; gap: 12px; }
-        .modal-card input { padding: 10px; font-size: 16px; text-align: center; background: #12161f; border: 1px solid var(--border-color); color: #fff; border-radius: 5px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-card { background: var(--panel-bg); border: 2px solid var(--accent-gold); padding: 24px; border-radius: 14px; width: 320px; text-align: center; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+        .modal-card input { padding: 10px; font-size: 18px; text-align: center; background: #0f172a; border: 1px solid var(--border-color); color: #fff; border-radius: 8px; font-weight: bold; letter-spacing: 4px; }
 
         @media (max-width: 1024px) {
             body { overflow-y: auto; height: auto; }
@@ -111,28 +205,35 @@
             <p style="font-size: 12px; color: var(--text-sub);">접속을 위한 4자리 비밀번호를 입력하세요.</p>
             <input type="password" id="pw-input" maxlength="4" placeholder="••••" onkeydown="if(event.key==='Enter') verifyPassword()">
             <div style="display:flex; gap:8px;">
-                <button onclick="cancelPassword()" style="background:#4a5260; color:#fff; flex:1;">취소</button>
+                <button onclick="cancelPassword()" style="background:#475569; color:#fff; flex:1;">취소</button>
                 <button onclick="verifyPassword()" style="background:var(--accent-gold); flex:1;">확인</button>
             </div>
         </div>
     </div>
 
     <header>
-        <h1>10기 1차 리그전 경매</h1>
+        <div class="header-title-group">
+            <span style="font-size: 22px;">⚔️</span>
+            <h1>로밍 10기 1차 리그전 경매</h1>
+        </div>
         <div class="header-controls">
             <div class="leader-select-group">
-                <label for="current-user-select">🔑 본인 선택:</label>
+                <label for="current-user-select" style="font-size: 12px;">🔑 본인 선택:</label>
                 <select id="current-user-select" class="leader-select" onchange="onSelectUserChange()">
                     <option value="-2">선택해 주세요 (로그인 필요)</option>
                     <option value="-1">관전 / 사회자 (전체 보기)</option>
                 </select>
             </div>
-            <button onclick="resetAuction()" id="btn-reset">경매 리셋</button>
+            <button onclick="resetAuction()" id="btn-reset" style="background:#f43f5e; color:#fff;">경매 리셋 🔄</button>
         </div>
     </header>
 
     <div class="main-container">
         <div class="sidebar">
+            <div class="cute-banner">
+                <span>포로의 추천 🐾</span>
+                <span>최강 팀을 완성해봐! ✨</span>
+            </div>
             <div class="panel-title">
                 <span>공개 대기열 (1~24번)</span>
                 <button onclick="shuffleMembers()" id="btn-shuffle" style="font-size:11px; padding:4px 8px; background:#00d2ff; color:#000;">순서 섞기 🎲</button>
@@ -167,10 +268,10 @@
                     </div>
                 </div>
                 <div class="controls">
-                    <button onclick="startNextAuction()" id="btn-next">다음 경매 시작</button>
-                    <button onclick="startCountdown()" id="btn-timer" style="background:var(--accent-green);">5초 카운트다운 시작 ⏱</button>
-                    <button onclick="forceWin()" id="btn-win" style="background:#00d2ff; color:#000;">즉시 낙찰 처리 ⚡</button>
-                    <button onclick="forcePass()" id="btn-pass" style="background:#4a5260; color:#fff;">강제 유찰 처리</button>
+                    <button onclick="startNextAuction()" id="btn-next">다음 경매 시작 🚀</button>
+                    <button onclick="startCountdown()" id="btn-timer" style="background:var(--accent-green);">5초 카운트다운 ⏱</button>
+                    <button onclick="forceWin()" id="btn-win" style="background:#38bdf8; color:#000;">즉시 낙찰 처리 ⚡</button>
+                    <button onclick="forcePass()" id="btn-pass" style="background:#475569; color:#fff;">강제 유찰 처리</button>
                 </div>
             </div>
             <div class="teams-grid" id="teams-grid"></div>
@@ -337,7 +438,6 @@
                 document.getElementById('timer-bar').style.width = '100%';
             }
 
-            // 초기 보유 포인트 오름차순(작은 순서 -> 큰 순서) 정렬
             const sortedTeams = [...currentState.teams].sort((a, b) => {
                 const totalA = a.points + a.slots.reduce((sum, s) => sum + (s.bidPrice || 0), 0);
                 const totalB = b.points + b.slots.reduce((sum, s) => sum + (s.bidPrice || 0), 0);
@@ -362,8 +462,8 @@
                 teamsGrid.innerHTML += `
                     <div class="team-card ${currentState.highestBidder && currentState.highestBidder.id === team.id ? 'bidding' : ''}">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <b style="font-size:14px;">${team.name} ${currentUserId === team.id ? '🔑':''}</b>
-                            <span style="color:var(--accent-gold); font-size:14px; font-weight:bold;">${team.points} pt</span>
+                            <b style="font-size:14px; color:#fff;">${team.name} ${currentUserId === team.id ? '🔑':''}</b>
+                            <span style="color:var(--accent-gold); font-size:14px; font-weight:800;">${team.points} pt</span>
                         </div>
                         <div class="slots-container">${slotsHTML}</div>
                         <div class="bid-input-group">
@@ -389,7 +489,7 @@
             const histBox = document.getElementById('history-list');
             if (currentHistoryTab === 'WIN') {
                 histBox.innerHTML = wins.length > 0 
-                    ? wins.map(h => `<div class="list-item"><span><b>${h.player}</b></span><span>${h.result}</span><span style="color:var(--accent-gold);">${h.price}</span></div>`).join('')
+                    ? wins.map(h => `<div class="list-item"><span><b>${h.player}</b></span><span>${h.result}</span><span style="color:var(--accent-gold); font-weight:bold;">${h.price}</span></div>`).join('')
                     : `<div style="font-size:11px; color:var(--text-sub); text-align:center; padding:10px;">낙찰된 이력이 없습니다.</div>`;
             } else {
                 histBox.innerHTML = passes.length > 0 
@@ -406,7 +506,7 @@
                 tierBox.innerHTML += `<div class="list-item"><div><span class="line-badge">${p.line}</span> <b>${p.name}</b></div><div><span class="tier-badge tier-${p.tier}">${p.tier}</span> <span class="rank-badge">${p.rank}등</span></div></div>`;
             });
 
-            document.getElementById('auction-log').innerHTML = currentState.logs.map(l => `<div style="font-size:11px; padding:3px 0; border-bottom:1px solid #222936;">${l}</div>`).join('');
+            document.getElementById('auction-log').innerHTML = currentState.logs.map(l => `<div style="font-size:11px; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.05);">${l}</div>`).join('');
         }
 
         function startNextAuction() { socket.emit('startNextAuction'); }
