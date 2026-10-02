@@ -86,15 +86,17 @@
         
         .badge-group { display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
         .line-badge { font-size: 9px; padding: 2px 4px; border-radius: 3px; background: #111827; color: var(--accent-gold); font-weight: 800; border: 1px solid rgba(240, 198, 116, 0.3); white-space: nowrap; flex-shrink: 0; }
-        .tier-badge { font-size: 10px; padding: 2px 5px; border-radius: 3px; font-weight: bold; white-space: nowrap; flex-shrink: 0; }
-        .tier-챌린저 { background: #ffe600; color: #000; }
-        .tier-그랜드마스터 { background: #ff4d4d; color: #fff; }
-        .tier-마스터 { background: #b084cc; color: #fff; }
-        .tier-다이아 { background: #6b82a8; color: #fff; }
-        .tier-에메랄드 { background: #10b981; color: #fff; }
-        .tier-플래티넘 { background: #06b6d4; color: #000; }
-        .tier-골드 { background: #eab308; color: #000; }
-        .tier-실버 { background: #94a3b8; color: #000; }
+        
+        .tier-badge { font-size: 10px; padding: 2px 5px; border-radius: 3px; font-weight: 800; white-space: nowrap; flex-shrink: 0; color: #000000 !important; }
+        .tier-챌린저 { background: #ffe600; }
+        .tier-그랜드마스터 { background: #ff6b81; }
+        .tier-마스터 { background: #c084fc; }
+        .tier-다이아 { background: #60a5fa; }
+        .tier-에메랄드 { background: #34d399; }
+        .tier-플래티넘 { background: #22d3ee; }
+        .tier-골드 { background: #fbbf24; }
+        .tier-실버 { background: #cbd5e1; }
+        
         .rank-badge { font-size: 9px; padding: 2px 4px; border-radius: 3px; background: #0f172a; color: var(--accent-blue); font-weight: bold; white-space: nowrap; flex-shrink: 0; }
 
         .center-stage { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
@@ -127,16 +129,16 @@
         .timer-bar-bg { width: 100%; height: 8px; background: #1e293b; border-radius: 4px; overflow: hidden; margin-top: 4px; border: 1px solid var(--border-color); }
         .timer-bar { height: 100%; width: 100%; background: linear-gradient(90deg, #f43f5e, #ff0055); transition: width 0.1s linear; }
 
-        .controls { display: flex; flex-direction: column; gap: 8px; }
+        .controls { display: flex; flex-direction: column; gap: 6px; }
         button { 
             background: linear-gradient(135deg, #f0c674 0%, #e5b849 100%); 
             color: #000; 
             border: none; 
-            padding: 10px 14px; 
+            padding: 9px 12px; 
             border-radius: 8px; 
             font-weight: 800; 
             cursor: pointer; 
-            font-size: 13px; 
+            font-size: 12px; 
             white-space: nowrap;
         }
         button:disabled { background: #334155 !important; color: #64748b !important; cursor: not-allowed !important; }
@@ -146,7 +148,6 @@
         .team-card.bidding { border-color: var(--accent-blue); box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); background: #172033; }
         .slots-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
         
-        /* 슬롯 레이아웃 강화: 줄바꿈 단속 및 자름 처리 */
         .slot { 
             background: #0f172a; 
             border: 1px dashed #334155; 
@@ -261,6 +262,7 @@
                     <button onclick="startCountdown()" id="btn-timer" style="background:var(--accent-green);">5초 카운트다운 ⏱</button>
                     <button onclick="forceWin()" id="btn-win" style="background:#38bdf8; color:#000;">즉시 낙찰 처리 ⚡</button>
                     <button onclick="forcePass()" id="btn-pass" style="background:#475569; color:#fff;">강제 유찰 처리</button>
+                    <button onclick="undoLastAuction()" id="btn-undo" style="background:#a855f7; color:#fff;" disabled>되돌리기 ↩️</button>
                 </div>
             </div>
             <div class="teams-grid" id="teams-grid"></div>
@@ -388,6 +390,7 @@
             document.getElementById('btn-pass').disabled = !isHost || !currentState.auctionActive;
             document.getElementById('btn-win').disabled = !isHost || !currentState.auctionActive || !currentState.highestBidder;
             document.getElementById('btn-timer').disabled = !isHost || !(currentState.auctionActive && !currentState.timerRunning);
+            document.getElementById('btn-undo').disabled = !isHost || !currentState.canUndo || currentState.auctionActive;
 
             const allRemaining = [...currentState.publicQueue, ...currentState.hiddenQueue, ...(currentState.passedQueue || [])];
             if (currentState.currentAuctionPlayer) allRemaining.push(currentState.currentAuctionPlayer);
@@ -532,6 +535,7 @@
         function startCountdown() { socket.emit('startCountdown'); }
         function forceWin() { socket.emit('forceWin'); }
         function forcePass() { socket.emit('forcePass'); }
+        function undoLastAuction() { socket.emit('undoLastAuction'); }
         function shuffleMembers() { socket.emit('shuffleMembers'); }
         function resetAuction() { socket.emit('resetAuction'); }
 
