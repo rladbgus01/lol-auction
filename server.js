@@ -8,7 +8,6 @@ const io = new Server(server, { cors: { origin: "*" } });
 
 app.use(express.static(__dirname + '/public'));
 
-// 요청하신 수정된 팀장 포인트 반영
 const rawLeaders = [
     { name: "박상우", points: 1700, pw: "1345" },
     { name: "박규현", points: 1800, pw: "2468" },
@@ -62,7 +61,7 @@ const lineOrderedMembers = [
     { name: "채승병", line: "ADC", rank: 6, tier: "다이아" },
     { name: "김경태", line: "ADC", rank: 7, tier: "다이아" },
     { name: "최상연", line: "ADC", rank: 8, tier: "다이아" },
-    { name: "한재성", line: "ADC", rank: 9, tier: "에메랄드" },
+    { name: "한재성", line: "ADC", rank: 9, tier: "다이아" }, // 다이아로 정정
     { name: "김대휘", line: "ADC", rank: 10, tier: "플래티넘" },
     { name: "김선진", line: "ADC", rank: 11, tier: "플래티넘" },
     { name: "조진우", line: "ADC", rank: 12, tier: "플래티넘" },
